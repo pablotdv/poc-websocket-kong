@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{3E855733-6AB8-4F33-BB3C-019B7CF5F42C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Websocket", "src\Websocket\Websocket.csproj", "{423D4EE5-F875-4C9C-8128-0AFF89F0F1AF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "src\Client\Client.csproj", "{17A09A10-09E5-4BBD-81C0-5968DF673C6E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{423D4EE5-F875-4C9C-8128-0AFF89F0F1AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{423D4EE5-F875-4C9C-8128-0AFF89F0F1AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{423D4EE5-F875-4C9C-8128-0AFF89F0F1AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{423D4EE5-F875-4C9C-8128-0AFF89F0F1AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{17A09A10-09E5-4BBD-81C0-5968DF673C6E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{17A09A10-09E5-4BBD-81C0-5968DF673C6E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{17A09A10-09E5-4BBD-81C0-5968DF673C6E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{17A09A10-09E5-4BBD-81C0-5968DF673C6E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{423D4EE5-F875-4C9C-8128-0AFF89F0F1AF} = {3E855733-6AB8-4F33-BB3C-019B7CF5F42C}
+		{17A09A10-09E5-4BBD-81C0-5968DF673C6E} = {3E855733-6AB8-4F33-BB3C-019B7CF5F42C}
+	EndGlobalSection
+EndGlobal

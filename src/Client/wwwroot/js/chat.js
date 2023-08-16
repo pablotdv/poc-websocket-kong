@@ -6,7 +6,10 @@ const headers = {
     }
 }
 
-var connection = new signalR.HubConnectionBuilder().withUrl("http://localhost:8000/app/chatHub", headers).build();
+const baseUrl = "https://localhost:7043/chatHub"; // SignalR Server URL (Local)
+//const baseUrl = "http://localhost:8000/app/chatHub"; // SignalR Server URL (Kong)
+
+var connection = new signalR.HubConnectionBuilder().withUrl(baseUrl, headers).build();
 
 //Disable the send button until connection is established.
 document.getElementById("sendButton").disabled = true;
@@ -35,7 +38,25 @@ document.getElementById("sendButton").addEventListener("click", function (event)
     event.preventDefault();
 });
 
+document.getElementById("sendMessageToCaller").addEventListener("click", function (event) {
+    var user = document.getElementById("userInput").value;
+    var message = document.getElementById("messageInput").value;
+    connection.invoke("SendMessageToCaller", user, message).catch(function (err) {
+        return console.error(err.toString());
+    });
+    event.preventDefault();
+});
 
+document.getElementById("SendMessageToGroup").addEventListener("click", function (event) {
+    var user = document.getElementById("userInput").value;
+    var message = document.getElementById("messageInput").value;
+    connection.invoke("SendMessageToGroup", user, message).catch(function (err) {
+        return console.error(err.toString());
+    });
+    event.preventDefault();
+});
+
+/*
 var myHeaders = new Headers();
 myHeaders.append("accept", "text/plain");
 myHeaders.append("Apikey", "NomfyDUE47FfECdQT2GK5h51JXLCI5xT");
@@ -50,3 +71,4 @@ fetch("http://localhost:8000/app/WeatherForecast", requestOptions)
     .then(response => response.text())
     .then(result => console.log(result))
     .catch(error => console.log('error', error));
+    */

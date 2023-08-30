@@ -1,9 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using MongoDB.Driver;
-using Websocket.Models;
+using Common;
+using Common.Models;
 
-namespace Websocket.Controllers;
+namespace Webapi.Controllers;
 
 [ApiController]
 [Route("[controller]")]
@@ -16,7 +17,7 @@ public class ConversasController : ControllerBase
         _chatHub = chatHub;
     }
 
-    //sendmessages to client group
+
     [HttpPost("{conversaId}/mensagens")]
     public async Task<IActionResult> SendMessage([FromServices] MongoContext mongoContext, Guid conversaId, string message)
     {

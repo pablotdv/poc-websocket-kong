@@ -1,9 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Common.Models;
 using Microsoft.AspNetCore.SignalR;
 using MongoDB.Driver;
-using Websocket.Models;
 
-namespace Websocket;
+namespace Common;
 
 public interface IChatHub
 {
@@ -19,7 +18,7 @@ public class ChatHub : Hub<IChatHub>
         _mongoContext = mongoContext;
     }
 
-    public async Task SendMessage(Guid contatoId, string message)
+    public async Task ReceiveMessage(Guid contatoId, string message)
     {
         var contato = await _mongoContext.Contatos.Find(x => x.ContatoId == contatoId).FirstOrDefaultAsync();
         if (contato == null)

@@ -1,18 +1,7 @@
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
+using Microsoft.Extensions.Configuration;
 using MongoDB.Driver;
 
-namespace Websocket.Models;
-
-public class Mensagem
-{
-    [BsonId]
-    public Guid Id { get; set; } = Guid.NewGuid();
-
-    public required string Texto { get; set; }
-
-    public required Guid ConversaId { get; set; }
-}
+namespace Common.Models;
 
 public class MongoContext
 {

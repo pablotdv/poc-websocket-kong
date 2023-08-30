@@ -9,10 +9,13 @@ services:
     ports:
       - 27017:27017
     volumes:
-      - .:/data/db
+      - data-db:/data/db
     networks:
       - app-network
 
 networks:
   app-network:
     driver: bridge
+
+volumes:
+  data-db:

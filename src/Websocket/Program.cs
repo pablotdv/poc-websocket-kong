@@ -1,4 +1,5 @@
 using Websocket;
+using Websocket.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +11,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddCors();
 builder.Services.AddSignalR();
+builder.Services.AddSingleton<MongoContext>();
 
 var app = builder.Build();
 

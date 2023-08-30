@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using Websocket.Models;
 
 namespace Websocket.Controllers;
 

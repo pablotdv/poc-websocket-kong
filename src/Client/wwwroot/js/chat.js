@@ -8,7 +8,7 @@ const headers = {
 }
 
 var connection = new signalR.HubConnectionBuilder()
-    .withUrl("http://localhost:8000/app/chatHub", headers).build();
+    .withUrl("https://localhost:7043/chatHub", headers).build();
 
 //Disable the send button until connection is established.
 document.getElementById("sendButton").disabled = true;
@@ -31,13 +31,14 @@ connection.start().then(function () {
 document.getElementById("sendButton").addEventListener("click", function (event) {
     var user = document.getElementById("userInput").value;
     var message = document.getElementById("messageInput").value;
-    connection.invoke("SendMessage", user, message).catch(function (err) {
+    connection.invoke("ReceiveMessage", user, message).catch(function (err) {
         return console.error(err.toString());
     });
     event.preventDefault();
 });
 
 
+/*
 var myHeaders = new Headers();
 myHeaders.append("accept", "text/plain");
 myHeaders.append("Apikey", "NomfyDUE47FfECdQT2GK5h51JXLCI5xT");
@@ -52,3 +53,4 @@ fetch("http://localhost:8000/app/WeatherForecast", requestOptions)
     .then(response => response.text())
     .then(result => console.log(result))
     .catch(error => console.log('error', error));
+    */

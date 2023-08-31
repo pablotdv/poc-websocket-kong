@@ -1,6 +1,8 @@
 ﻿using Common.Models;
+using Confluent.Kafka;
 using Microsoft.AspNetCore.SignalR;
 using MongoDB.Driver;
+using Newtonsoft.Json;
 
 namespace Common;
 
@@ -12,40 +14,33 @@ public interface IChatHub
 public class ChatHub : Hub<IChatHub>
 {
     private readonly MongoContext _mongoContext;
+    private readonly IProducer<Null, String> _producer;
 
-    public ChatHub(MongoContext mongoContext)
+    public ChatHub(MongoContext mongoContext, IProducer<Null, string> producer)
     {
         _mongoContext = mongoContext;
+        _producer = producer;
     }
 
     public async Task ReceiveMessage(Guid contatoId, string message)
     {
-        var contato = await _mongoContext.Contatos.Find(x => x.ContatoId == contatoId).FirstOrDefaultAsync();
-        if (contato == null)
+        var callbackMessageEvent = new CallbackMessageEvent()
         {
-            contato = new Contato
-            {
-                ContatoId = contatoId
-            };
-            await _mongoContext.Contatos.InsertOneAsync(contato);
-        }
-        await Groups.AddToGroupAsync(Context.ConnectionId, contato.ContatoId.ToString());
-
-        var conversa = await _mongoContext.Conversas.Find(x => x.ContatoId == contato.Id).FirstOrDefaultAsync();
-        if (conversa == null)
-        {
-            conversa = new Conversa
-            {
-                ContatoId = contato.Id
-            };
-            await _mongoContext.Conversas.InsertOneAsync(conversa);
-        }
-        var mensagem = new Mensagem
-        {
-            Texto = message,
-            ConversaId = conversa.Id
+            Id = Guid.NewGuid(),
+            CallbackMessage = message,
+            ContatoId = contatoId,
+            Timestamp = DateTime.Now
         };
-        await _mongoContext.Mensagens.InsertOneAsync(mensagem);
-        await Clients.Group(contato.ContatoId.ToString()).ReceiveMessage(contatoId, message);
+        
+        var jsonSerializerSettings = new JsonSerializerSettings
+        {
+            TypeNameHandling = TypeNameHandling.All
+        };
+
+        var jsonSerializer = JsonConvert.SerializeObject(callbackMessageEvent, jsonSerializerSettings);
+
+
+        var result = await _producer.ProduceAsync("poc.topic", new Message<Null, string> { Value = jsonSerializer });
+
     }
 }

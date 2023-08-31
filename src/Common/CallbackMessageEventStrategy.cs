@@ -7,9 +7,9 @@ namespace Common;
 public class CallbackMessageEventStrategy : IEventStrategy
 {
     private readonly MongoContext _mongoContext;
-    public readonly IHubContext<ChatHub> _chatHub;
+    public readonly IHubContext<ChatHub, IChatHub> _chatHub;
 
-    public CallbackMessageEventStrategy(MongoContext mongoContext, IHubContext<ChatHub> chatHub)
+    public CallbackMessageEventStrategy(MongoContext mongoContext, IHubContext<ChatHub, IChatHub> chatHub)
     {
         _mongoContext = mongoContext;
         _chatHub = chatHub;
@@ -21,7 +21,7 @@ public class CallbackMessageEventStrategy : IEventStrategy
     }
 
     public async Task Handle(BaseEvent baseEvent)
-    {
+    {        
         var callbackMessage = baseEvent as CallbackMessageEvent;
 
         var contato = await _mongoContext.Contatos.Find(x => x.ContatoId == callbackMessage.ContatoId).FirstOrDefaultAsync();
@@ -33,7 +33,7 @@ public class CallbackMessageEventStrategy : IEventStrategy
             };
             await _mongoContext.Contatos.InsertOneAsync(contato);
         }
-        await _chatHub.Groups.AddToGroupAsync(contato.ContatoId.ToString(), contato.ContatoId.ToString());
+        await _chatHub.Groups.AddToGroupAsync(callbackMessage.ConnectionId, callbackMessage.ContatoId.ToString());
 
         var conversa = await _mongoContext.Conversas.Find(x => x.ContatoId == contato.Id).FirstOrDefaultAsync();
         if (conversa == null)
@@ -50,6 +50,6 @@ public class CallbackMessageEventStrategy : IEventStrategy
             ConversaId = conversa.Id
         };
         await _mongoContext.Mensagens.InsertOneAsync(mensagem);
-        await _chatHub.Clients.Group(contato.ContatoId.ToString()).SendAsync("ReceiveMessage", callbackMessage.ContatoId, callbackMessage.CallbackMessage);
+        await _chatHub.Clients.Group(contato.ContatoId.ToString()).ReceiveMessage(callbackMessage.ContatoId, callbackMessage.CallbackMessage);
     }
 }

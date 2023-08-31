@@ -134,11 +134,12 @@
     ],
     "compounds": [
         {
-            "name": "Compound",
+            "name": "All",
             "configurations": [
                 "websocket",
                 "webapi",
-                "client"
+                "client",
+                "workerkafka",
             ]
         }
     ]

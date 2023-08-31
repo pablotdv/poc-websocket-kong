@@ -10,9 +10,9 @@ namespace Webapi.Controllers;
 [Route("[controller]")]
 public class ConversasController : ControllerBase
 {
-    public readonly IHubContext<ChatHub> _chatHub;
+    public readonly IHubContext<ChatHub, IChatHub> _chatHub;
 
-    public ConversasController(IHubContext<ChatHub> chatHub)
+    public ConversasController(IHubContext<ChatHub, IChatHub> chatHub)
     {
         _chatHub = chatHub;
     }
@@ -28,7 +28,7 @@ public class ConversasController : ControllerBase
         }
         var contato = await mongoContext.Contatos.Find(x => x.Id == conversa.ContatoId).FirstOrDefaultAsync();
 
-        await _chatHub.Clients.Group(contato.ContatoId.ToString()).SendAsync("ReceiveMessage", "API Says", message);
+        await _chatHub.Clients.Group(contato.ContatoId.ToString()).ReceiveMessage(contato.ContatoId, message);
 
         return Ok();
     }

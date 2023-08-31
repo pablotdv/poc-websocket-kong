@@ -9,6 +9,7 @@ namespace Common;
 public interface IChatHub
 {
     Task ReceiveMessage(Guid contatoId, string message);
+    Task SendMessage(Guid contatoId, string message);
 }
 
 public class ChatHub : Hub<IChatHub>
@@ -22,16 +23,17 @@ public class ChatHub : Hub<IChatHub>
         _producer = producer;
     }
 
-    public async Task ReceiveMessage(Guid contatoId, string message)
+    public async Task SendMessage(Guid contatoId, string message)
     {
         var callbackMessageEvent = new CallbackMessageEvent()
         {
             Id = Guid.NewGuid(),
             CallbackMessage = message,
             ContatoId = contatoId,
-            Timestamp = DateTime.Now
+            Timestamp = DateTime.Now,
+            ConnectionId = Context.ConnectionId
         };
-        
+
         var jsonSerializerSettings = new JsonSerializerSettings
         {
             TypeNameHandling = TypeNameHandling.All

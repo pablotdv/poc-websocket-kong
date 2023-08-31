@@ -14,7 +14,7 @@ public class Worker : BackgroundService
     private readonly IConsumer<Null, string> _consumer;
     private readonly List<IEventStrategy> _eventStrategies;    
 
-    public Worker(ILogger<Worker> logger, IConfiguration configuration, MongoContext mongoContext, IHubContext<ChatHub> chatHub)
+    public Worker(ILogger<Worker> logger, IConfiguration configuration, MongoContext mongoContext, IHubContext<ChatHub, IChatHub> chatHub)
     {
         _logger = logger;
         var config = new ConsumerConfig
@@ -42,7 +42,7 @@ public class Worker : BackgroundService
         {
             _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
             var consumeResult = _consumer.Consume(stoppingToken);
-            // deserialize consumeResult into a MessageEvent
+           
             var jsonSerializerSettings = new JsonSerializerSettings
             {
                 TypeNameHandling = TypeNameHandling.All

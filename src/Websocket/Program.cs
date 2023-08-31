@@ -1,5 +1,6 @@
 using Common;
 using Common.Models;
+using Confluent.Kafka;
 using Websocket;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,8 +12,17 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddCors();
-builder.Services.AddSignalR().AddStackExchangeRedis(builder.Configuration.GetConnectionString("Redis") ?? "");
+builder.Services.AddSignalR()
+    .AddStackExchangeRedis(builder.Configuration.GetConnectionString("Redis") ?? "");
 builder.Services.AddSingleton<MongoContext>();
+builder.Services.AddSingleton(c =>
+{
+    var config = new ProducerConfig
+    {
+        BootstrapServers = builder.Configuration.GetConnectionString("Kafka") ?? ""
+    };
+    return new ProducerBuilder<Null, string>(config).Build();
+});
 
 var app = builder.Build();
 

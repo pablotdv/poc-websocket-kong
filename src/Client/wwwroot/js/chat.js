@@ -8,7 +8,7 @@ const headers = {
 }
 
 var connection = new signalR.HubConnectionBuilder()
-    .withUrl("https://localhost:7043/chatHub", headers).build();
+    .withUrl(`${baseUrl}/chatHub`, headers).build();
 
 //Disable the send button until connection is established.
 document.getElementById("sendButton").disabled = true;

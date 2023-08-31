@@ -8,8 +8,11 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddSignalR().AddStackExchangeRedis("localhost:6379");
+builder.Services.AddSignalR();//.AddStackExchangeRedis(builder.Configuration.GetConnectionString("Redis"));
 builder.Services.AddSingleton<MongoContext>();
+
+Console.WriteLine(builder.Environment.ContentRootPath);
+Console.WriteLine(Directory.GetCurrentDirectory());
 
 var app = builder.Build();
 

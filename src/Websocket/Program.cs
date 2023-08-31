@@ -11,7 +11,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddCors();
-builder.Services.AddSignalR().AddStackExchangeRedis("localhost:6379");
+builder.Services.AddSignalR();//.AddStackExchangeRedis(builder.Configuration.GetConnectionString("Redis"));
 builder.Services.AddSingleton<MongoContext>();
 
 var app = builder.Build();

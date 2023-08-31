@@ -12,6 +12,7 @@ services:
       - data-db:/data/db
     networks:
       - app-network
+  
   redis:
     image: redis:latest
     container_name: redis
@@ -20,6 +21,119 @@ services:
       - 6379:6379
     networks:
       - app-network
+
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.3.0
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+  broker:
+    image: confluentinc/cp-kafka:7.3.0
+    container_name: broker
+    ports:
+    # To learn about configuring Kafka for access across networks see
+    # https://www.confluent.io/blog/kafka-client-cannot-connect-to-broker-on-aws-on-docker-etc/
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://broker:29092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1   
+  create-topics:
+    image: confluentinc/cp-kafka:7.1.0
+    container_name: create-topics
+    depends_on:
+      - broker
+    command:
+      - bash
+      - -c
+      - |
+        /etc/confluent/docker/run &  # Start Kafka
+        sleep 5  # Wait for Kafka to initialize (adjust the delay as needed)
+        # Create topics for IrisAPI
+        kafka-topics --create --topic chattopic --partitions 1 --replication-factor 1 --bootstrap-server broker:29092                
+
+  websocket:
+    build:
+      context: .
+      dockerfile: src/Websocket/Dockerfile
+    container_name: websocket
+    restart: always
+    ports:
+      - 5443:443
+    depends_on:
+      - mongodb
+      - redis
+      - broker
+      - create-topics      
+    networks:
+      - app-network
+    environment:
+      - ConnectionStrings__DefaultConnection=mongodb://mongodb:27017/Chat
+      - ConnectionStrings__Redis=redis:6379
+      - ASPNETCORE_URLS=https://+:443;http://+:80
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=123123
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+    volumes:
+      - ~/.aspnet/https:/https:ro
+
+  webapi:
+    build:
+      context: .
+      dockerfile: src/Webapi/Dockerfile
+    container_name: webapi
+    restart: always
+    ports:
+      - 6443:443
+    depends_on:
+      - mongodb
+      - redis
+      - broker
+      - create-topics
+      - websocket
+    networks:
+      - app-network
+    environment:
+      - ConnectionStrings__DefaultConnection=mongodb://mongodb:27017/Chat
+      - WebsocketServer__baseUrl=https://websocket:5443
+      - ConnectionStrings__Redis=redis:6379
+      - ASPNETCORE_URLS=https://+:443;http://+:80
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=123123
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+    volumes:
+      - ~/.aspnet/https:/https:ro
+
+  client:
+    build:
+      context: .
+      dockerfile: src/Client/Dockerfile
+    container_name: client
+    restart: always
+    ports:
+      - 7443:443
+    depends_on:
+      - mongodb
+      - redis
+      - broker
+      - create-topics
+      - websocket
+    networks:
+      - app-network
+    environment:
+      - ConnectionStrings_DefaultConnection=mongodb://mongodb:27017/Chat
+      - WebsocketServer__baseUrl=https://localhost:5443
+      - ASPNETCORE_URLS=https://+:443;http://+:80
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=123123
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+    volumes:
+      - ~/.aspnet/https:/https:ro
 
 networks:
   app-network:

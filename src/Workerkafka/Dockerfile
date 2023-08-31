@@ -5,7 +5,7 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
-COPY ["src/Webapi/Workerkafka.csproj", "Workerkafka/"]
+COPY ["src/Workerkafka/Workerkafka.csproj", "Workerkafka/"]
 RUN dotnet restore "Workerkafka/Workerkafka.csproj"
 COPY src/ .
 WORKDIR "/src/Workerkafka"

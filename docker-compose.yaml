@@ -28,6 +28,9 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - app-network
+
   broker:
     image: confluentinc/cp-kafka:latest
     container_name: broker
@@ -45,6 +48,9 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1   
+    networks:
+      - app-network
+
   create-topics:
     image: confluentinc/cp-kafka:latest
     container_name: create-topics
@@ -56,7 +62,9 @@ services:
       - |
         /etc/confluent/docker/run &  # Start Kafka
         sleep 5  # Wait for Kafka to initialize (adjust the delay as needed)                
-        kafka-topics --create --topic poc.topic --partitions 1 --replication-factor 1 --bootstrap-server broker:29092                
+        kafka-topics --create --topic poc.topic --partitions 1 --replication-factor 1 --bootstrap-server broker:29092      
+    networks:
+      - app-network
 
   websocket:
     build:
@@ -126,11 +134,31 @@ services:
     networks:
       - app-network
     environment:
-      - ConnectionStrings_DefaultConnection=mongodb://mongodb:27017/Chat
       - WebsocketServer__baseUrl=https://localhost:5443
       - ASPNETCORE_URLS=https://+:443;http://+:80
       - ASPNETCORE_Kestrel__Certificates__Default__Password=123123
       - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+    volumes:
+      - ~/.aspnet/https:/https:ro
+    
+  workerkafka:
+    build:
+      context: .
+      dockerfile: src/Workerkafka/Dockerfile
+    container_name: Workerkafka
+    restart: always
+    depends_on:
+      - mongodb
+      - redis
+      - broker
+      - create-topics
+      - websocket
+    networks:
+      - app-network
+    environment:
+      - ConnectionStrings__DefaultConnection=mongodb://mongodb:27017/Chat            
+      - ConnectionStrings__Redis=redis:6379
+      - ConnectionStrings__Kafka=broker:29092
     volumes:
       - ~/.aspnet/https:/https:ro
 
